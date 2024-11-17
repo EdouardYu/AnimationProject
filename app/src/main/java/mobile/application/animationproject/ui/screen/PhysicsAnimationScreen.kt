@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -40,7 +42,7 @@ fun PhysicsAnimationScreen() {
             ) {
                 if (showShapes) {
                     RotatingShape(
-                        modifier = Modifier.size(100.dp),
+                        modifier = Modifier.size(120.dp),
                         shapeColor = Color.Red,
                         shape = CircleShape
                     )
@@ -63,6 +65,26 @@ fun PhysicsAnimationScreen() {
                         modifier = Modifier.size(120.dp),
                         initialColor = Color.Green,
                         shape = CutCornerShape(16.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (showShapes) {
+                    FlingShape(
+                        modifier = Modifier.size(120.dp),
+                        initialColor = Color.Gray,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (showShapes) {
+                    DecayShape(
+                        modifier = Modifier.size(120.dp),
+                        initialColor = Color.Magenta,
+                        shape = CircleShape
                     )
                 }
             }
@@ -133,7 +155,7 @@ fun FallingShapeWithBounce(
             .background(initialColor, shape = shape),
         contentAlignment = Alignment.Center
     ) {
-        Text("Falling", color = Color.White)
+        Text("Bounce", color = Color.White)
     }
 }
 
@@ -166,5 +188,65 @@ fun ExplodingShape(
         contentAlignment = Alignment.Center
     ) {
         Text("Explode", color = Color.White)
+    }
+}
+
+@Composable
+fun FlingShape(
+    modifier: Modifier,
+    initialColor: Color,
+    shape: androidx.compose.ui.graphics.Shape
+) {
+    val screenWidthPx = with(LocalDensity.current) {
+        LocalConfiguration.current.screenWidthDp.dp.toPx()
+    }
+    val flingOffsetX = remember { Animatable(-screenWidthPx) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            flingOffsetX.snapTo(-screenWidthPx)
+            flingOffsetX.animateTo(
+                targetValue = screenWidthPx + 120f,
+                animationSpec = tween(durationMillis = 3000, easing = LinearEasing)
+            )
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .offset { IntOffset(flingOffsetX.value.roundToInt(), 0) }
+            .background(initialColor, shape = shape),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Fling", color = Color.White)
+    }
+}
+
+@Composable
+fun DecayShape(
+    modifier: Modifier,
+    initialColor: Color,
+    shape: androidx.compose.ui.graphics.Shape
+) {
+    val density = LocalDensity.current
+    val screenWidthPx = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val centerX = screenWidthPx / 200
+
+    val decayOffsetX = remember { Animatable(-screenWidthPx) }
+
+    LaunchedEffect(Unit) {
+        decayOffsetX.animateTo(
+            targetValue = centerX,
+            animationSpec = tween(durationMillis = 2000, easing = LinearOutSlowInEasing)
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .offset { IntOffset(decayOffsetX.value.roundToInt(), 0) }
+            .background(initialColor, shape = shape),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Decay", color = Color.White)
     }
 }
