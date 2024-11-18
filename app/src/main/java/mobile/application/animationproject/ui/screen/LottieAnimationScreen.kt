@@ -45,7 +45,7 @@ fun LottieAnimationScreen(navController: NavController) {
             }
     ) {
         if (showTransition) {
-            TransitionAnimationExample(direction = swipeDirection)
+            TransitionAnimation(direction = swipeDirection)
         }
 
         Column(
@@ -56,12 +56,12 @@ fun LottieAnimationScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             Text("Icon Animation", modifier = Modifier.padding(8.dp))
-            IconAnimationExample()
+            IconAnimation()
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text("Loading Animation", modifier = Modifier.padding(8.dp))
-            LoadingAnimationExample()
+            LoadingAnimation()
         }
     }
 }
@@ -73,7 +73,13 @@ fun ScrollLottieAnimationScreen(navController: NavController) {
 
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("scroll_animation.json"))
     val scrollState = rememberScrollState()
-    val progress = scrollState.value.toFloat() / (scrollState.maxValue.toFloat() + 1)
+
+    val maxScrollOffset = 400f
+    val progress by remember {
+        derivedStateOf {
+            scrollState.value.toFloat() / maxScrollOffset
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -99,26 +105,31 @@ fun ScrollLottieAnimationScreen(navController: NavController) {
             }
     ) {
         if (showTransition) {
-            TransitionAnimationExample(direction = swipeDirection)
+            TransitionAnimation(direction = swipeDirection)
         }
 
-        Box(
+        Column(
             modifier = Modifier
-                .verticalScroll(scrollState) // Assurez-vous que le scroll vertical fonctionne
+                .verticalScroll(scrollState)
                 .fillMaxSize(),
-            contentAlignment = Alignment.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(100.dp))
             LottieAnimation(
                 composition = composition,
-                progress = { progress },
-                modifier = Modifier.size(300.dp).graphicsLayer(alpha = 1f)
+                progress = { progress.coerceIn(0f, 1f) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp)
+                    .graphicsLayer(alpha = 1f)
             )
+            Spacer(modifier = Modifier.height(400.dp))
         }
     }
 }
 
 @Composable
-fun TransitionAnimationExample(direction: SwipeDirection?) {
+fun TransitionAnimation(direction: SwipeDirection?) {
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("transition_animation.json"))
     val progress by animateLottieCompositionAsState(composition)
 
@@ -140,7 +151,7 @@ fun TransitionAnimationExample(direction: SwipeDirection?) {
 }
 
 @Composable
-fun LoadingAnimationExample() {
+fun LoadingAnimation() {
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("loading_animation.json"))
     val progress by animateLottieCompositionAsState(
         composition = composition,
@@ -154,7 +165,7 @@ fun LoadingAnimationExample() {
 }
 
 @Composable
-fun IconAnimationExample() {
+fun IconAnimation() {
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("icon_animation.json"))
     val progress by animateLottieCompositionAsState(composition)
     LottieAnimation(
