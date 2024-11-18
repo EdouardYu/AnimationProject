@@ -45,6 +45,8 @@ fun MainNavigation() {
             composable("view_animation") { ViewAnimationScreen() }
             composable("transition_animation") { TransitionAnimationScreen() }
             composable("physics_animation") { PhysicsAnimationScreen() }
+            composable("lottie_animation") { LottieAnimationScreen(navController) }
+            composable("scroll_lottie_animation") { ScrollLottieAnimationScreen(navController) }
         }
     }
 }
@@ -55,7 +57,8 @@ fun BottomNavigationBar(navController: NavController) {
         NavItem("property_animation", "Property", R.drawable.ic_property),
         NavItem("view_animation", "View", R.drawable.ic_view),
         NavItem("transition_animation", "Transitions", R.drawable.ic_transition),
-        NavItem("physics_animation", "Physics", R.drawable.ic_physics)
+        NavItem("physics_animation", "Physics", R.drawable.ic_physics),
+        NavItem("lottie_animation", "Lottie", R.drawable.ic_lottie)
     )
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
